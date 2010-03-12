@@ -1,0 +1,69 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <linux/input.h>
+
+#include "input-event-daemon.h"
+
+static void list_input_devices() {
+    int fd, i, e;
+    char filename[32];
+    unsigned char evmask[EV_MAX/8 + 1];
+
+    for(i=0; i<32; i++) {
+        char phys[32] = "no physical path", name[256] = "Unknown Device";
+
+        snprintf(filename, sizeof(filename), "/dev/input/event%d", i);
+        fd = open(filename,O_RDONLY);
+        if(fd < 0) {
+            if(errno != ENOENT) {
+                fprintf(stderr, "input-event-daemon: fopen(%s): %s\n", 
+                    filename, strerror(errno));
+            }
+            continue;
+        }
+
+        ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+        ioctl(fd, EVIOCGPHYS(sizeof(phys)), phys);
+        ioctl(fd, EVIOCGBIT(0, sizeof(evmask)), evmask);
+
+        printf("%s\n", filename);
+        printf("  name     : %s\n", name);
+        printf("  phys     : %s\n", phys);
+
+        printf("  features :");
+        for(e=0; e<EV_MAX; e++) {
+            if (test_bit(e, evmask)) {
+                const char *feature = "unknown";
+                switch(e) {
+                    case EV_SYN: feature = "syn";      break;
+                    case EV_KEY: feature = "keys";     break;
+                    case EV_REL: feature = "relative"; break;
+                    case EV_ABS: feature = "absolute"; break;
+                    case EV_MSC: feature = "reserved"; break;
+                    case EV_LED: feature = "leds";     break;
+                    case EV_SND: feature = "sound";    break;
+                    case EV_REP: feature = "repeat";   break;
+                    case EV_FF:  feature = "feedback"; break;
+                    case EV_SW:  feature = "switch";   break;
+                }
+                printf(" %s", feature);
+            }
+        }
+        printf("\n\n");
+    }
+}
+
+static void listen(int monitor) {
+    
+}
+
+static void parse_config_file() {
+
+}
+
+int main(int argc, char *argv[]) {
+    list_input_devices();
+}
