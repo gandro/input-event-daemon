@@ -1,48 +1,53 @@
-#include "input-event-table.h"
+#ifndef INPUT_EVENT_DAEMON_H
+#define INPUT_EVENT_DAEMON_H
 
-#define test_bit(bit, array) ((array)[(bit)/8] & (1 << ((bit)%8)))
+#define test_bit(array, bit) ((array)[(bit)/8] & (1 << ((bit)%8)))
 
-#define MAX_KEYSTACK 	 5
+#define MAX_MODIFIERS 	 4
 #define MAX_EVENTS		 64
 #define MAX_LISTENER	 32
 
-char *config_file = "sample.conf";
+#define PROGNAME  "input-event-daemon"
 
-char *listen[MAX_LISTENER];
-int listen_n = 0;
+const char *config_file = "sample.conf";
+unsigned long min_timeout = 3600;
 
-int min_timeout = 60;
-
-/*
- * Storage structures
- */
-
-struct key_stack {
-	const char *stack[MAX_KEYSTACK];
-	int length;
-};
-
-struct event_list {
-	void *list[MAX_EVENTS];
-	int length;
-} key_events, switch_events, idle_events;
+struct {
+	unsigned short verbose;
+	unsigned short monitor;
+} settings;
 
 /*
  * Event structs 
  */
 
-struct key_event {
-    struct key_stack stack;
+typedef struct key_event {
+    const char *code;
+    const char *modifiers[MAX_MODIFIERS];
+    size_t     modifier_n;
     const char *exec;
-} current_keyevent;
+} key_event_t;
 
-struct switch_event {
+
+typedef struct idle_event {
+    unsigned long timeout;
+    const char *exec;
+} idle_event_t;
+
+typedef struct switch_event {
     const char *code;
     int value;
     const char *exec;
-};
+} switch_event_t;
 
-struct idle_event {
-    int idle_secs;
-    const char *exec;
-};
+const char *listen[MAX_LISTENER];
+
+key_event_t       key_events[MAX_EVENTS];
+idle_event_t     idle_events[MAX_EVENTS];
+switch_event_t switch_events[MAX_EVENTS];
+
+size_t    key_event_n = 0;
+size_t   idle_event_n = 0;
+size_t switch_event_n = 0;
+
+#endif /* INPUT_EVENT_DAEMON_H */
