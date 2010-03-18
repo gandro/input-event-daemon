@@ -11,12 +11,6 @@
 #define test_bit(array, bit) ((array)[(bit)/8] & (1 << ((bit)%8)))
 
 /**
-    TODO:
-        - dokumentation
-        - make install
-*/
-
-/**
  * Global Configuration 
  *
  */
