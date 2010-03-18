@@ -65,7 +65,7 @@ static const char *key_event_modifier_name(const char* code) {
     return code;
 }
 
-static key_event_t 
+static key_event_t
 *key_event_parse(unsigned int code, int pressed, const char *src) {
     key_event_t *fired_key_event = NULL;
     static key_event_t current_key_event = {
@@ -92,7 +92,7 @@ static key_event_t
             }
 
             if(strcmp(current_key_event.code, key_event_name(code)) != 0) {
-                current_key_event.modifiers[current_key_event.modifier_n++] = 
+                current_key_event.modifiers[current_key_event.modifier_n++] =
                     key_event_modifier_name(current_key_event.code);
             }
         }
@@ -114,7 +114,7 @@ static key_event_t
             }
 
             qsort(
-                current_key_event.modifiers, 
+                current_key_event.modifiers,
                 current_key_event.modifier_n,
                 sizeof(const char*),
                 (int (*)(const void *, const void *)) strcmp
@@ -139,7 +139,7 @@ static key_event_t
                     current_key_event.modifiers[i];
             }
         }
-        memcpy(current_key_event.modifiers, new_modifiers, 
+        memcpy(current_key_event.modifiers, new_modifiers,
             MAX_MODIFIERS*sizeof(const char*));
         current_key_event.modifier_n = new_modifier_n;
 
@@ -189,7 +189,7 @@ static int idle_event_parse(unsigned long idle) {
             fprintf(stderr, "\nidle_event:\n");
 
             if(fired_idle_event->timeout > 0) {
-                fprintf(stderr, "  time     : %ldh %ldm %lds\n", 
+                fprintf(stderr, "  time     : %ldh %ldm %lds\n",
                                 fired_idle_event->timeout / 3600,
                                 fired_idle_event->timeout % 3600 / 60,
                                 fired_idle_event->timeout % 60
@@ -272,7 +272,7 @@ void input_open_all_listener() {
         snprintf(filename, sizeof(filename), "/dev/input/event%d", i);
         if(access(filename, R_OK) != 0) {
             if(errno != ENOENT) {
-                fprintf(stderr, PROGRAM": access(%s): %s\n", 
+                fprintf(stderr, PROGRAM": access(%s): %s\n",
                     filename, strerror(errno));
             }
             continue;
@@ -290,7 +290,7 @@ void input_list_devices() {
 
         fd = open(conf.listen[i], O_RDONLY);
         if(fd < 0) {
-            fprintf(stderr, PROGRAM": open(%s): %s\n", 
+            fprintf(stderr, PROGRAM": open(%s): %s\n",
                 conf.listen[i], strerror(errno));
             continue;
         }
@@ -342,7 +342,7 @@ static void input_parse_event(struct input_event *event, const char *src) {
             }
             break;
         case EV_SW:
-            fired_switch_event = 
+            fired_switch_event =
                 switch_event_parse(event->code, event->value, src);
 
             if(fired_switch_event != NULL) {
@@ -368,9 +368,9 @@ void config_parse_file() {
             conf.configfile, strerror(errno));
         exit(EXIT_FAILURE);
     }
-    
+
     memset(buffer, 0, sizeof(buffer));
- 
+
     while(fgets(buffer, sizeof(buffer), config_fd) != NULL) {
         line = config_trim_string(buffer);
         line_num++;
@@ -429,11 +429,11 @@ void config_parse_file() {
 
         print_error:
         if(error != NULL) {
-            fprintf(stderr, PROGRAM": %s (%s:%d)\n", 
+            fprintf(stderr, PROGRAM": %s (%s:%d)\n",
                 error, conf.configfile, line_num);
         }
 
-        
+
     }
 
     qsort(key_events, key_event_n, sizeof(key_event_t),
@@ -477,7 +477,7 @@ static const char *config_key_event(char *shortcut, char *exec) {
         modifier = strtok(shortcut, "+");
         while(modifier != NULL && new_key_event->modifier_n < MAX_MODIFIERS) {
             modifier = config_trim_string(modifier);
-            new_key_event->modifiers[new_key_event->modifier_n++] = 
+            new_key_event->modifiers[new_key_event->modifier_n++] =
                 strdup(modifier);
 
             modifier = strtok(NULL, "+");
@@ -616,7 +616,7 @@ void daemon_start_listener() {
         conf.listen_fd[i] = open(conf.listen[i], O_RDONLY);
 
         if(conf.listen_fd[i] < 0) {
-            fprintf(stderr, PROGRAM": open(%s): %s\n", 
+            fprintf(stderr, PROGRAM": open(%s): %s\n",
                 conf.listen[i], strerror(errno));
             exit(EXIT_FAILURE);
         }

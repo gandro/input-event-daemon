@@ -25,16 +25,16 @@ OPTIONS
 -------
 *-m, --monitor*::
     Start in monitoring mode. In this mode 'input-event-daemon' does not detach
-    to background, but shows every input event and the device file which 
+    to background, but shows every input event and the device file which
     triggered it.  This option is to be specified exclusively.
 
 *-l, --list*::
-    Lists all available input device files, including their name, supported 
+    Lists all available input device files, including their name, supported
     features and physical path.  This option is to be specified exclusively.
 
 *-c, --config*='FILE'::
-    Use configuration file 'FILE'. This option will be ignored in monitoring 
-    mode. See below for syntax information. 
+    Use configuration file 'FILE'. This option will be ignored in monitoring
+    mode. See below for syntax information.
     (default: '/etc/input-event-daemon.conf')
 
 *-v, --verbose*::
@@ -55,7 +55,7 @@ OPTIONS
 FILES
 -----
 '/etc/input-event-daemon.conf'::
-    The default path of the configuration file. 
+    The default path of the configuration file.
 
 EXAMPLES
 --------
@@ -86,7 +86,7 @@ Specifies all devices files to listen to. This option may be used more than
 once.
 
 *[Keys]*::
-All commands in this section are executed when the specified shortcut occurred. 
+All commands in this section are executed when the specified shortcut occurred.
 Modifiers are separated by the plus sign. A shortcut may be defined only once.
 
 *[Switches]*::
@@ -99,7 +99,7 @@ not send any events in the specified amount of time. The special key 'RESET'
 is triggered when returning from idle mode and at least one other idle event was
 launched before.
 
-NOTE: The idle time applies to all events, even such not handled by 
+NOTE: The idle time applies to all events, even such not handled by
 input-event-daemon (e.g. mouse movement).
 
 

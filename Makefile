@@ -7,13 +7,13 @@ input-event-table.h: /usr/include/linux/input.h
 	awk -f parse_input_h.awk < $< > $@
 
 docs/input-event-daemon.8: docs/input-event-daemon.txt
-	a2x -f manpage $< 
+	a2x -f manpage $<
 
 docs/input-event-daemon.html: docs/input-event-daemon.txt
 	asciidoc $<
 
 clean:
-	rm -f input-event-daemon 
+	rm -f input-event-daemon
 
 install:
 	install -D -m 755 input-event-daemon $(DESTDIR)/usr/bin
