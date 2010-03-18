@@ -1,1 +1,33 @@
-docs/input-event-daemon.txt
+input-event-daemon -  input event handling daemon for linux
+===========================================================
+
+Usage:
+
+    input-event-daemon [ [ --monitor | --list | --help | --version ] |
+                         [--config=FILE] [--verbose] [--no-daemon] ]
+
+    Available Options:
+
+        -m, --monitor       Start in monitoring mode
+        -l, --list          List all input devices and quit
+        -c, --config FILE   Use specified config file
+        -v, --verbose       Verbose output
+        -D, --no-daemon     Don't run in background
+
+        -h, --help          Show this help and quit
+        -V, --version       Show version number and quit
+
+
+See Also:
+
+    docs/input-event-daemon.html
+
+Copyright:
+
+    "THE COFFEE-WARE LICENSE" (Revision 12/2007):
+
+    Sebastian Wicki <gandro@gmx.net> wrote this file. As long as you retain
+    this notice you can do whatever you want with this stuff. If we meet some
+    day, and you think this stuff is worth it, you can buy me a cup of coffee
+    in return.
+

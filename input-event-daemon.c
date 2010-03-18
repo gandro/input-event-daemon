@@ -755,7 +755,10 @@ void daemon_clean() {
 
 static void daemon_print_help() {
     printf("Usage:\n\n"
-            "    input-event-daemon [OPTION...]\n"
+            "    "PROGRAM" "
+            "[ [ --monitor | --list | --help | --version ] |\n"
+            "                         "
+            "[--config=FILE] [--verbose] [--no-daemon] ]\n"
             "\n"
             "Available Options:\n"
             "\n"
