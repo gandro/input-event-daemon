@@ -635,7 +635,7 @@ void daemon_start_listener() {
     }
 
     if(conf.monitor) {
-        printf(PROGRAM": Monitoring mode started. Press CTRL+C to abbort\n\n");
+        printf(PROGRAM": Monitoring mode started. Press CTRL+C to abort.\n\n");
     } else if(conf.daemon) {
         if(daemon(1, conf.verbose) < 0) {
             perror(PROGRAM": daemon()");
