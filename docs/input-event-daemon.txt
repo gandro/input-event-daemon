@@ -42,7 +42,7 @@ OPTIONS
     This option may be combined with the option *--no-daemon*.
 
 *-D, --no-daemon*::
-    Do not detach form console.
+    Do not detach from console.
 
 
 *-h, --help*::
