@@ -587,7 +587,7 @@ static char *config_trim_string(char *str) {
 void daemon_init() {
     int i;
 
-    conf.configfile  = strdup("/etc/input-event-daemon.conf");
+    conf.configfile  = "/etc/input-event-daemon.conf";
 
     conf.monitor     = 0;
     conf.verbose     = 0;
@@ -746,10 +746,6 @@ void daemon_clean() {
         }
     }
 
-    if(conf.configfile != NULL) {
-        free((void*) conf.configfile);
-    }
-
     _exit(EXIT_SUCCESS);
 }
 
@@ -823,7 +819,7 @@ int main(int argc, char *argv[]) {
                 return EXIT_SUCCESS;
                 break;
             case 'c': /* config */
-                conf.configfile = strdup(optarg);
+                conf.configfile = optarg;
                 break;
             case 'v': /* verbose */
                 conf.verbose = 1;
