@@ -16,9 +16,9 @@ clean:
 	rm -f input-event-daemon
 
 install:
-	install -D -m 755 input-event-daemon $(DESTDIR)/usr/bin
-	install -D -m 644 docs/input-event-daemon.8 $(DESTDIR)/usr/share/man/man8
-	install -D -b -m 644 docs/sample.conf $(DESTDIR)/etc/input-event-daemon.conf.sample
+	install -D -m 755 input-event-daemon $(DESTDIR)/usr/bin/input-event-daemon
+	install -D -m 644 docs/input-event-daemon.8 $(DESTDIR)/usr/share/man/man8/input-event-daemon.8
+	install -D -b -m 644 docs/sample.conf $(DESTDIR)/etc/input-event-daemon.conf
 
 uninstall:
 	rm -f $(DESTDIR)/usr/bin/input-event-daemon
