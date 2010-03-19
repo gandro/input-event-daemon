@@ -2,7 +2,7 @@
 #define INPUT_EVENT_DAEMON_H
 
 #define PROGRAM  "input-event-daemon"
-#define VERSION  "0.1.1"
+#define VERSION  "0.1.2"
 
 #define MAX_MODIFIERS      4
 #define MAX_LISTENER       32
