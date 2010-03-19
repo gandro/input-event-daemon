@@ -36,7 +36,7 @@ static int key_event_compare(const key_event_t *a, const key_event_t *b) {
 }
 
 static const char *key_event_name(unsigned int code) {
-    if(code < KEY_MAX) {
+    if(code < KEY_MAX && KEY_NAME[code] != NULL) {
         return KEY_NAME[code];
     } else {
         return "UNKNOWN";
@@ -218,7 +218,7 @@ switch_event_compare(const switch_event_t *a, const switch_event_t *b) {
 }
 
 static const char *switch_event_name(unsigned int code) {
-    if(code < SW_MAX) {
+    if(code < SW_MAX && SW_NAME[code] != NULL) {
         return SW_NAME[code];
     } else {
         return "UNKNOWN";
