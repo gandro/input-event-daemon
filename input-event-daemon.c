@@ -698,7 +698,7 @@ void daemon_start_listener() {
         tms_start = tv_start.tv_sec * 1000 + tv_start.tv_usec / 1000;
         tms_end   = tv_end.tv_sec  *  1000 + tv_end.tv_usec  /  1000;
 
-        if(tms_end - tms_start > 750) {
+        if(tms_end - tms_start > 750 || idle_time > 0) {
             idle_event_parse(IDLE_RESET);
             idle_time = 0;
         }
