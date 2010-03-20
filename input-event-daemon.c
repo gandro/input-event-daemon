@@ -7,9 +7,10 @@
 #include <getopt.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
-#include <sys/select.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 
 #include <linux/input.h>
 
@@ -25,7 +26,6 @@ static int key_event_compare(const key_event_t *a, const key_event_t *b) {
     } else if(a->modifier_n != b->modifier_n) {
         return (a->modifier_n - b->modifier_n);
     } else {
-
         for(i=0; i < a->modifier_n; i++) {
             if((r_cmp = strcmp(a->modifiers[i], b->modifiers[i])) != 0) {
                 return r_cmp;
@@ -75,13 +75,22 @@ static key_event_t
 
     if(pressed) {
 
-        /* add previous key to modifiers (if not already there) */
+        /* ignore if repeated */
+        if(
+            current_key_event.code != NULL &&
+            strcmp(current_key_event.code, key_event_name(code)) == 0
+        ) {
+            return NULL;
+        }
+
+        /* if previous key present and modifier limit not yet reached */
         if(
             current_key_event.code != NULL &&
             current_key_event.modifier_n < MAX_MODIFIERS
         ) {
             int i;
 
+            /* if not already in the modifiers array */
             for(i=0; i < current_key_event.modifier_n; i++) {
                 if(strcmp(
                         current_key_event.modifiers[i], current_key_event.code
@@ -91,19 +100,35 @@ static key_event_t
                 }
             }
 
-            if(strcmp(current_key_event.code, key_event_name(code)) != 0) {
-                current_key_event.modifiers[current_key_event.modifier_n++] =
-                    key_event_modifier_name(current_key_event.code);
-            }
+            /* add previous key as modifier */
+            current_key_event.modifiers[current_key_event.modifier_n++] =
+                key_event_modifier_name(current_key_event.code);
+
         }
 
         current_key_event.code = key_event_name(code);
+
+        if(current_key_event.modifier_n == 0) {
+            if(conf.monitor) {
+                printf("%s:\n  keys      : ", src);
+                printf("%s\n\n", current_key_event.code);
+            }
+
+            fired_key_event = bsearch(
+                &current_key_event,
+                key_events,
+                key_event_n,
+                sizeof(key_event_t),
+                (int (*)(const void *, const void *)) key_event_compare
+            );
+        }
+
 
     } else {
         int i, new_modifier_n = 0;
         const char *new_modifiers[MAX_MODIFIERS], *modifier_code;
 
-        if(current_key_event.code != NULL) {
+        if(current_key_event.code != NULL && current_key_event.modifier_n > 0) {
 
             if(conf.monitor) {
                 printf("%s:\n  keys     : ", src);
@@ -128,6 +153,12 @@ static key_event_t
                 (int (*)(const void *, const void *)) key_event_compare
             );
 
+        }
+
+        if(
+            current_key_event.code != NULL &&
+            strcmp(current_key_event.code, key_event_name(code)) == 0
+        ) {
             current_key_event.code = NULL;
         }
 
@@ -188,14 +219,14 @@ static int idle_event_parse(unsigned long idle) {
         if(conf.verbose) {
             fprintf(stderr, "\nidle_event:\n");
 
-            if(fired_idle_event->timeout > 0) {
+            if(fired_idle_event->timeout == IDLE_RESET) {
+                fprintf(stderr, "  time     : idle reset\n");
+            } else {
                 fprintf(stderr, "  time     : %ldh %ldm %lds\n",
                                 fired_idle_event->timeout / 3600,
                                 fired_idle_event->timeout % 3600 / 60,
                                 fired_idle_event->timeout % 60
                 );
-            } else {
-                fprintf(stderr, "  time     : reset\n");
             }
 
             fprintf(stderr, "  exec     : \"%s\"\n\n", fired_idle_event->exec);
@@ -509,6 +540,7 @@ static const char *config_idle_event(char *timeout, char *exec) {
     new_idle_event->exec = strdup(exec);
 
     if(strcasecmp(timeout, "RESET") == 0) {
+        new_idle_event->timeout = IDLE_RESET;
         return NULL;
     }
 
@@ -603,10 +635,10 @@ void daemon_init() {
 
 void daemon_start_listener() {
     int i, select_r, fd_len;
-    unsigned long idle_triggered = 0, idle_time = 0;
+    unsigned long tms_start, tms_end, idle_time = 0;
     fd_set fdset, initial_fdset;
     struct input_event event;
-    struct timeval tv;
+    struct timeval tv, tv_start, tv_end;
 
     /* ignored forked processes */
     signal(SIGCHLD, SIG_IGN);
@@ -648,23 +680,28 @@ void daemon_start_listener() {
         tv.tv_sec = conf.min_timeout;
         tv.tv_usec = 0;
 
+        gettimeofday(&tv_start, NULL);
+
         select_r = select(conf.listen_fd[fd_len-1]+1, &fdset, NULL, NULL, &tv);
+
+        gettimeofday(&tv_end, NULL);
 
         if(select_r < 0) {
             perror(PROGRAM": select()");
             break;
         } else if(select_r == 0) {
             idle_time += conf.min_timeout;
-            idle_triggered += idle_event_parse(idle_time);
+            idle_event_parse(idle_time);
             continue;
-        } else if(idle_time > 0) {
-            idle_time = 0;
-            if(idle_triggered) {
-                idle_triggered = 0;
-                idle_event_parse(0);
-            }
         }
 
+        tms_start = tv_start.tv_sec * 1000 + tv_start.tv_usec / 1000;
+        tms_end   = tv_end.tv_sec  *  1000 + tv_end.tv_usec  /  1000;
+
+        if(tms_end - tms_start > 750) {
+            idle_event_parse(IDLE_RESET);
+            idle_time = 0;
+        }
 
         for(i=0; i<fd_len; i++) {
             if(FD_ISSET(conf.listen_fd[i], &fdset)) {

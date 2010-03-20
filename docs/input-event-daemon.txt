@@ -96,8 +96,7 @@ to the defined value. Switch name and value are separated by a colon.
 *[Idle]*::
 The commands defined in this section are executed after all input devices did
 not send any events in the specified amount of time. The special key 'RESET'
-is triggered when returning from idle mode and at least one other idle event was
-launched before.
+is triggered when returning from idle.
 
 NOTE: The idle time applies to all events, even such not handled by
 input-event-daemon (e.g. mouse movement).

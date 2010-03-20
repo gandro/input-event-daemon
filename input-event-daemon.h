@@ -2,11 +2,13 @@
 #define INPUT_EVENT_DAEMON_H
 
 #define PROGRAM  "input-event-daemon"
-#define VERSION  "0.1.2"
+#define VERSION  "0.1.3"
 
 #define MAX_MODIFIERS      4
 #define MAX_LISTENER       32
 #define MAX_EVENTS         64
+
+#define IDLE_RESET         0x00
 
 #define test_bit(array, bit) ((array)[(bit)/8] & (1 << ((bit)%8)))
 
@@ -40,14 +42,15 @@ typedef struct key_event {
     const char *exec;
 } key_event_t;
 
+
 typedef struct idle_event {
     unsigned long timeout;
-    const char *exec;
+    const char  *exec;
 } idle_event_t;
 
 typedef struct switch_event {
     const char *code;
-    int value;
+    signed int value;
     const char *exec;
 } switch_event_t;
 
