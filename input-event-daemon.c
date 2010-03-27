@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#include <termios.h>
 
 #include <sys/wait.h>
 #include <sys/select.h>
@@ -639,6 +640,7 @@ void daemon_start_listener() {
     fd_set fdset, initial_fdset;
     struct input_event event;
     struct timeval tv, tv_start, tv_end;
+    struct termios monitoring_terminal;
 
     /* ignored forked processes */
     signal(SIGCHLD, SIG_IGN);
@@ -668,6 +670,21 @@ void daemon_start_listener() {
 
     if(conf.monitor) {
         printf(PROGRAM": Monitoring mode started. Press CTRL+C to abort.\n\n");
+
+        /* get current terminal settings */
+        if(tcgetattr(STDIN_FILENO, &conf.terminal) < 0) {
+            perror(PROGRAM": tcgetattr()");
+            exit(EXIT_FAILURE);
+        }
+
+        /* disable echo on terminal */
+        monitoring_terminal = conf.terminal;
+        monitoring_terminal.c_lflag &= ~ECHO;
+
+        if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &monitoring_terminal) < 0) {;
+            perror(PROGRAM": tcsetattr()");
+        }
+
     } else if(conf.daemon) {
         if(daemon(1, conf.verbose) < 0) {
             perror(PROGRAM": daemon()");
@@ -780,6 +797,12 @@ void daemon_clean() {
         conf.listen[i] = NULL;
         if(conf.listen_fd[i]) {
             close(conf.listen_fd[i]);
+        }
+    }
+
+    if(conf.monitor) {
+        if(tcsetattr(STDIN_FILENO, TCSAFLUSH, &conf.terminal) < 0) {;
+            perror(PROGRAM": tcsetattr()");
         }
     }
 

@@ -28,6 +28,8 @@ struct {
 
     const char      *listen[MAX_LISTENER];
     int             listen_fd[MAX_LISTENER];
+
+    struct termios  terminal;
 } conf;
 
 /**
