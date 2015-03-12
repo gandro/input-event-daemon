@@ -635,8 +635,9 @@ void daemon_init() {
 }
 
 void daemon_start_listener() {
-    int i, select_r, fd_len;
+    int i, n, select_r, fd_len;
     unsigned long tms_start, tms_end, idle_time = 0;
+    unsigned char sw_states[SW_MAX/8 + 1];
     fd_set fdset, initial_fdset;
     struct input_event event;
     struct timeval tv, tv_start, tv_end;
@@ -655,6 +656,14 @@ void daemon_start_listener() {
             exit(EXIT_FAILURE);
         }
         FD_SET(conf.listen_fd[i], &initial_fdset);
+        ioctl(conf.listen_fd[i], EVIOCGSW(sizeof(sw_states)), &sw_states);
+        for (n=0; n < SW_MAX; n++) {
+            memset(&event, '\0', sizeof(event));
+            event.type = EV_SW;
+            event.code = n;
+            event.value = (sw_states[n/8] >> n%8) & 0x1;
+            input_parse_event(&event, conf.listen[i]);
+        }
     }
 
     fd_len = i;
